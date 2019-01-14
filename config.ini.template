@@ -1,0 +1,13 @@
+; config.ini
+[LOGIN]
+ACCOUNT=
+PASSWORD=
+
+[CHROME]
+DRIVER=
+
+[BANK]
+ACCOUNT=
+
+[SCRAPPER]
+OUT=
