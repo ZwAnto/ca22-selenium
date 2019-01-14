@@ -32,7 +32,8 @@ class browser:
         
     def reset(self):
         self.browser = webdriver.Chrome(executable_path=self.chromedriver_path, options=self.option, desired_capabilities= self.caps)
-
+        self.browser.implicitly_wait(30)
+        
     def waitForElement(self,selector,by=By.CSS_SELECTOR):
         el = WebDriverWait(self.browser, 30).until(EC.presence_of_element_located((by, selector)))
         return(el)
