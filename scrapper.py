@@ -75,18 +75,15 @@ class browser:
         self.waitForElement('#btn-sos_2').click()
              
     def retrieve(self,account,last=None):
-        
         try:
-            self.waitForElement('#bnc-compte-href').click()
+            self.waitForElement('#bnc-compte-href',click=True)
             self.waitForElement("//a[contains(., '" + account + "')]",By.XPATH,click=True)
-            print('XPATH OK')
             
             date_pattern = re.compile('[0-9]{2}/[0-9]{2}')
 
             out=[]
             first = True
             page = 1
-
             match = 0
 
             while True:
@@ -94,9 +91,11 @@ class browser:
                     if first:
                         first = False
                     else:
+                        # Hiding sidebar 
                         self.waitForElement('#oic-container')
                         self.browser.execute_script("$('#oic-container').hide()")
-                        self.waitForElement('a#lien_page_suivante').click()
+                        # Click for next page
+                        self.waitForElement('a#lien_page_suivante',click=True)
 
                     a = self.waitForElement('.ca-table:nth-of-type(2) tr')
                     #rows = a.find_elements_by_css_selector("tr")
@@ -104,8 +103,9 @@ class browser:
                     print('TR OK')
                     
                     self.waitForElement('#PLIER_DEPLIER_OPERATIONS_O').click()
-
+                    print('BTN OK')
                     for row in rows:
+                        print('ROW OK')
                         #cols = row.find_elements_by_css_selector("td")
                         cols = WebDriverWait(self.browser, 30).until(EC.presence_of_element_located(row.find_elements_by_css_selector("td")))
                         print('TD OK')
