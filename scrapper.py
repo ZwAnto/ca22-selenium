@@ -1,12 +1,20 @@
 from selenium import webdriver 
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 import numpy as np
 import re
 import sys
+import pickle
+import hashlib
+
+class HistoryReachedError(Exception):
+    def __init__(self, message, errors):
+
+        # Call the base class constructor with the parameters it needs
+        super().__init__(message)
+
+        # Now for your custom code...
+        self.errors = errors
 
 class browser:
     
@@ -57,7 +65,7 @@ class browser:
         self.browser.find_element_by_css_selector('span.droite a:nth-of-type(2)').click()
         self.browser.find_element_by_css_selector('#btn-sos_2').click()
 
-    def retrieve(self,account,last=None):
+    def retrieve(self,account,last_md5=None):
         try:
             self.browser.find_element_by_css_selector('#bnc-compte-href').click()
             self.browser.find_element_by_xpath("//a[contains(., '" + account + "')]").click()
@@ -106,27 +114,23 @@ class browser:
 
                         if len(row_out):
                             out.append(row_out)
-                            if last is not None:
-                                if row_out == last[match]:
-                                    match += 1
-                                else:
-                                    match = 0
-                        if last is not None:
-                            if match == (len(last)-1):
-                                break
-                    if last is not None:
-                        if match == (len(last)-1):
-                            print('Operations already up to date.')
-                            break
+                            if last_md5 is not None:
+                                md5 = hashlib.md5(pickle.dumps(out[-10:])).hexdigest()   
+                                if md5 == last_md5:
+                                    raise(HistoryReachedError('a','a'))
+                                    
                     sys.stdout.write('\rpage: ' + str(page) + ' obs: ' + str(len(out)))
                     sys.stdout.flush()
                     page += 1 
                 except NoSuchElementException:
                     break
-            if last is not None:
-                if match:
-                    out = out[:-match]
-            return(out)
+                except HistoryReachedError:
+                    new_md5 = hashlib.md5(pickle.dumps(out[:10])).hexdigest()   
+                    out = out[:-10]
+                    break
+                else:
+                    new_md5 = hashlib.md5(pickle.dumps(out[:10])).hexdigest()   
+            return((out,new_md5))
         except Exception as e: 
             print(str(e))
             self.quit()
