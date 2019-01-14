@@ -3,7 +3,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
+from selenium.common.exceptions import StaleElementReferenceException
 import numpy as np
 import re
 import sys
@@ -40,9 +40,19 @@ class browser:
             try:
                 el = WebDriverWait(self.browser, 30).until(EC.presence_of_element_located((by, selector)))
                 staleElement = False
-            except:
+            except StaleElementReferenceException:
                 staleElement = True
         return(el)
+    
+    def click(self,selector,by=By.CSS_SELECTOR):
+        staleElement = True
+        while staleElement:
+            try:
+                el = WebDriverWait(self.browser, 30).until(EC.presence_of_element_located((by, selector)))
+                el.click()
+                staleElement = False
+            except StaleElementReferenceException:
+                staleElement = True
     
     def connect(self,account,passwd):
         self.browser.get("https://www.ca-cotesdarmor.fr/")
@@ -75,14 +85,7 @@ class browser:
         
         try:
             self.waitForElement('#bnc-compte-href').click()
-            staleElement = True
-            while staleElement:
-                try:
-                    self.waitForElement("//a[contains(., '" + account + "')]",By.XPATH).click()
-                    staleElement = False
-                except:
-                    staleElement = True
-            
+            self.click("//a[contains(., '" + account + "')]",By.XPATH)
             print('XPATH OK')
             
             date_pattern = re.compile('[0-9]{2}/[0-9]{2}')
