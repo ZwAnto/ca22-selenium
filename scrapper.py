@@ -107,6 +107,7 @@ class browser:
 
                     a = self.waitForElement('.ca-table:nth-of-type(2)')
                     rows = a.find_elements_by_css_selector("tr")
+                    print('TR OK')
                     self.waitForElement('#PLIER_DEPLIER_OPERATIONS_O').click()
 
                     for row in rows:
