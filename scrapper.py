@@ -75,7 +75,13 @@ class browser:
         
         try:
             self.waitForElement('#bnc-compte-href').click()
-            self.waitForElement("//a[contains(., '" + account + "')]",By.XPATH).click()
+            staleElement = True
+            while staleElement:
+                try:
+                    self.waitForElement("//a[contains(., '" + account + "')]",By.XPATH).click()
+                    staleElement = False
+                except:
+                    staleElement = True
             
             print('XPATH OK')
             
