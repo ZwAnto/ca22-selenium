@@ -35,7 +35,13 @@ class browser:
         self.browser.implicitly_wait(30)
         
     def waitForElement(self,selector,by=By.CSS_SELECTOR):
-        el = WebDriverWait(self.browser, 30).until(EC.presence_of_element_located((by, selector)))
+        staleElement = True
+        while staleElement:
+            try:
+                el = WebDriverWait(self.browser, 30).until(EC.presence_of_element_located((by, selector)))
+                staleElement = False
+            except:
+                staleElement = True
         return(el)
     
     def connect(self,account,passwd):
@@ -69,9 +75,8 @@ class browser:
         
         try:
             self.waitForElement('#bnc-compte-href').click()
-            self.waitForElement('.ca-table')
             self.waitForElement("//a[contains(., '" + account + "')]",By.XPATH).click()
-
+                  
             date_pattern = re.compile('[0-9]{2}/[0-9]{2}')
 
             out=[]
