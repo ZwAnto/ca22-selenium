@@ -112,7 +112,7 @@ class browser:
 
                     for row in rows:
                         cols = row.find_elements_by_css_selector("td")
-
+                        print('TD OK')
                         row_out = []
                         for idx, col in enumerate(cols):
                             if idx == 3:
