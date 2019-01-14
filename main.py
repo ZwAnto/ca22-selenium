@@ -4,16 +4,19 @@ from saveload import *
 from scrapper import browser
 import pandas as pd
 import configparser
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("conf", help="Configuration file") 
+args = parser.parse_args()
 
 print('Reading config.ini ...')
 config = configparser.ConfigParser()
-config.read('config.ini')
-
-https://stackoverflow.com/questions/46322165/dont-wait-for-a-page-to-load-using-selenium-in-python
+config.read(args.conf)
 
 print('Browser initialization ...')
 chrome = browser(config['CHROME']['DRIVER'])
-chrome.reset()
+print('Login ...')
 chrome.connect(config['LOGIN']['ACCOUNT'],
                config['LOGIN']['PASSWORD'])
 
