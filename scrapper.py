@@ -3,7 +3,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import NoSuchElementException
 import numpy as np
 import re
 import sys
@@ -32,68 +32,35 @@ class browser:
         
     def reset(self):
         self.browser = webdriver.Chrome(executable_path=self.chromedriver_path, options=self.option, desired_capabilities= self.caps)
-        self.browser.implicitly_wait(30)
-        
-    def waitForElement(self,selector,by=By.CSS_SELECTOR,click=False,multiple=False):
-        
-        if multiple:
-            EC_func = EC.presence_of_all_elements_located
-        else:
-            EC_func = EC.presence_of_element_located
-        
-        el = WebDriverWait(self.browser, 30).until(EC_func((by, selector)))
-        
-        #if not multiple:
-        #    WebDriverWait(self.browser, 30).until(EC.staleness_of(el))
-        #else:
-        #    WebDriverWait(self.browser, 30).until(EC.staleness_of(el[0]))
-            
-        if click:
-            el.click()
-        
-        #staleElement = True
-        #while staleElement:
-        #    try:
-        #        el = WebDriverWait(self.browser, 30).until(EC_func((by, selector)))
-        #        if click:
-        #            el.click()
-        #        staleElement = False
-        #   except StaleElementReferenceException:
-        #       staleElement = True
-        if not click:
-            return(el)
-    
+  
     def connect(self,account,passwd):
         self.browser.get("https://www.ca-cotesdarmor.fr/")
-        #self.browser.find_element_by_css_selector('#acces_aux_comptes a').click()
-        self.waitForElement('#acces_aux_comptes a',click=True)
-
-        #a = self.browser.find_element_by_css_selector('input[name="CCPTE"]')
-        self.waitForElement('input[name="CCPTE"]').send_keys(account)
+        self.browser.find_element_by_css_selector('#acces_aux_comptes a').click()
+        self.browser.find_element_by_css_selector('input[name="CCPTE"]').send_keys(account)
 
         map = np.zeros((10,2),dtype='uint8')
 
         for i in range(25):
             j = str(i // 5 + 1)
             k = str(i % 5 + 1)
-            #a = self.browser.find_element_by_css_selector('#pave-saisie-code tr:nth-of-type(' + j + ') td:nth-of-type(' + k + ')')
-            a = self.waitForElement('#pave-saisie-code tr:nth-of-type(' + j + ') td:nth-of-type(' + k + ')')
+            
+            css = '#pave-saisie-code tr:nth-of-type(' + j + ') td:nth-of-type(' + k + ')'
+            a = self.browser.find_element_by_css_selector(css)
+            
             if a.text.strip() != '':
                 map[int(a.text.strip())] = (j,k)
 
         for i in passwd:
-            #self.browser.find_element_by_css_selector('#pave-saisie-code tr:nth-of-type(' + str(map[int(i),0]) + ') td:nth-of-type(' + str(map[int(i),1]) + ')').click()
-            self.waitForElement('#pave-saisie-code tr:nth-of-type(' + str(map[int(i),0]) + ') td:nth-of-type(' + str(map[int(i),1]) + ')').click()
+            css = '#pave-saisie-code tr:nth-of-type(' + str(map[int(i),0]) + ') td:nth-of-type(' + str(map[int(i),1]) + ')'
+            self.browser.find_element_by_css_selector(css).click()
         
-        #self.browser.find_element_by_css_selector('span.droite a:nth-of-type(2)').click()
-        self.waitForElement('span.droite a:nth-of-type(2)').click()
-        #self.browser.find_element_by_css_selector('#btn-sos_2').click()
-        self.waitForElement('#btn-sos_2').click()
-             
+        self.browser.find_element_by_css_selector('span.droite a:nth-of-type(2)').click()
+        self.browser.find_element_by_css_selector('#btn-sos_2').click()
+
     def retrieve(self,account,last=None):
         try:
-            self.waitForElement('#bnc-compte-href',click=True)
-            self.waitForElement("//a[contains(., '" + account + "')]",By.XPATH,click=True)
+            self.browser.find_element_by_css_selector('#bnc-compte-href').click()
+            self.browser.find_element_by_xpath("//a[contains(., '" + account + "')]").click()
             
             date_pattern = re.compile('[0-9]{2}/[0-9]{2}')
 
@@ -108,29 +75,16 @@ class browser:
                         first = False
                     else:
                         # Hiding sidebar 
-                        self.waitForElement('#oic-container')
-                        
                         self.browser.execute_script("$('#oic-container').hide()")
                         # Click for next page
-                        self.waitForElement('a#lien_page_suivante',click=True)
-                        
-                    rows = self.waitForElement('.ca-table:nth-of-type(2) tbody tr',multiple = True)
-                    #rows = a.find_elements_by_css_selector("tr")
-                    #rows = self.browser.find_elements_by_css_selector('.ca-table:nth-of-type(2) tr')
+                        self.browser.find_element_by_css_selector('a#lien_page_suivante').click()
+
+                    rows = self.browser.find_elements_by_css_selector('.ca-table:nth-of-type(2) tbody tr')
                     
-                    self.waitForElement('#PLIER_DEPLIER_OPERATIONS_O').click()
+                    self.browser.find_element_by_css_selector('#PLIER_DEPLIER_OPERATIONS_O').click()
                     
                     for row in rows:
-                        staleElement = True
-                        while staleElement:
-                            try:
-                                cols = row.find_elements_by_css_selector("td")
-                                staleElement = False
-                            except StaleElementReferenceException:
-                                staleElement = True
-                        #cols = self.waitForElement('.ca-table:nth-of-type(2) tr',multiple = True)
-                        #cols = WebDriverWait(self.browser, 30).until(EC.presence_of_element_located(row.find_elements_by_css_selector("td")))
-
+                        cols = row.find_elements_by_css_selector("td")
                         row_out = []
                         for idx, col in enumerate(cols):
                             if idx == 3:
@@ -167,8 +121,7 @@ class browser:
                     sys.stdout.write('\rpage: ' + str(page) + ' obs: ' + str(len(out)))
                     sys.stdout.flush()
                     page += 1 
-                except Exception as e:
-                    print(str(e))
+                except NoSuchElementException:
                     break
             if last is not None:
                 if match:
