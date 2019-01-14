@@ -136,7 +136,7 @@ class browser:
                 if match:
                     out = out[:-match]
             return(out)
-        except Exception,e: 
+        except Exception as e: 
             print(str(e))
             self.quit()
 
