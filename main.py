@@ -1,14 +1,16 @@
+
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("conf", help="Path to config.ini") 
+args = parser.parse_args()
+
 import numpy as np
 from saveload import *
 from scrapper import browser
 import pandas as pd
 import configparser
-import argparse
 import sys 
-
-parser = argparse.ArgumentParser()
-parser.add_argument("conf", help="Configuration file") 
-args = parser.parse_args()
 
 sys.stdout.write('Reading config.ini... ')
 sys.stdout.flush()
@@ -40,3 +42,5 @@ try:
 except FileNotFoundError:
     histo = chrome.retrieve(config['BANK']['ACCOUNT'])
     save(histo,config['SCRAPPER']['OUT'])
+    
+chrome.quit()

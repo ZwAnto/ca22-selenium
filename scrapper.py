@@ -135,3 +135,6 @@ class browser:
             if match:
                 out = out[:-match]
         return(out)
+    
+    def quit(self):
+        self.browser.quit()
