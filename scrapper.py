@@ -25,7 +25,7 @@ class browser:
         
         # Page load strategy
         self.caps = DesiredCapabilities().CHROME
-        self.caps["pageLoadStrategy"] = "none" 
+        self.caps["pageLoadStrategy"] = "normal" 
         
         # Initialize browser
         self.reset()
@@ -37,26 +37,36 @@ class browser:
     def waitForElement(self,selector,by=By.CSS_SELECTOR,click=False,multiple=False):
         
         if multiple:
-            EC_func = EC.presence_of_element_located
-        else:
             EC_func = EC.presence_of_all_elements_located
+        else:
+            EC_func = EC.presence_of_element_located
         
-        staleElement = True
-        while staleElement:
-            try:
-                el = WebDriverWait(self.browser, 30).until(EC_func((by, selector)))
-                if click:
-                    el.click()
-                staleElement = False
-            except StaleElementReferenceException:
-                staleElement = True
+        el = WebDriverWait(self.browser, 30).until(EC_func((by, selector)))
+        
+        #if not multiple:
+        #    WebDriverWait(self.browser, 30).until(EC.staleness_of(el))
+        #else:
+        #    WebDriverWait(self.browser, 30).until(EC.staleness_of(el[0]))
+            
+        if click:
+            el.click()
+        
+        #staleElement = True
+        #while staleElement:
+        #    try:
+        #        el = WebDriverWait(self.browser, 30).until(EC_func((by, selector)))
+        #        if click:
+        #            el.click()
+        #        staleElement = False
+        #   except StaleElementReferenceException:
+        #       staleElement = True
         if not click:
             return(el)
     
     def connect(self,account,passwd):
         self.browser.get("https://www.ca-cotesdarmor.fr/")
         #self.browser.find_element_by_css_selector('#acces_aux_comptes a').click()
-        self.waitForElement('#acces_aux_comptes a').click()
+        self.waitForElement('#acces_aux_comptes a',click=True)
 
         #a = self.browser.find_element_by_css_selector('input[name="CCPTE"]')
         self.waitForElement('input[name="CCPTE"]').send_keys(account)
@@ -99,24 +109,28 @@ class browser:
                     else:
                         # Hiding sidebar 
                         self.waitForElement('#oic-container')
+                        
                         self.browser.execute_script("$('#oic-container').hide()")
                         # Click for next page
                         self.waitForElement('a#lien_page_suivante',click=True)
-
-                    rows = self.waitForElement('.ca-table:nth-of-type(2) tr',multiple = True)
+                        
+                    rows = self.waitForElement('.ca-table:nth-of-type(2) tbody tr',multiple = True)
                     #rows = a.find_elements_by_css_selector("tr")
                     #rows = self.browser.find_elements_by_css_selector('.ca-table:nth-of-type(2) tr')
                     
-                    print('TR OK')
-                    
                     self.waitForElement('#PLIER_DEPLIER_OPERATIONS_O').click()
-                    print('BTN OK')
+                    
                     for row in rows:
-                        print('ROW OK')
-                        cols = row.find_elements_by_css_selector("td")
+                        staleElement = True
+                        while staleElement:
+                            try:
+                                cols = row.find_elements_by_css_selector("td")
+                                staleElement = False
+                            except StaleElementReferenceException:
+                                staleElement = True
                         #cols = self.waitForElement('.ca-table:nth-of-type(2) tr',multiple = True)
                         #cols = WebDriverWait(self.browser, 30).until(EC.presence_of_element_located(row.find_elements_by_css_selector("td")))
-                        print('TD OK')
+
                         row_out = []
                         for idx, col in enumerate(cols):
                             if idx == 3:
