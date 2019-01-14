@@ -35,7 +35,7 @@ class browser:
         return(el)
     
     def connect(self,account,passwd):
-        self.browser.get("https://www.ca-cotesdarmor.fr/")
+        WebDriverWait(self.browser.get("https://www.ca-cotesdarmor.fr/"), 10).until(EC.presence_of_element_located((By.CSS_SELECTOR,'#acces_aux_comptes a')))
         #a = self.browser.find_element_by_css_selector('#acces_aux_comptes a')
         a = self.waitForElement('#acces_aux_comptes a')
         a.click()
