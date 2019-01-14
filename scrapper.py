@@ -4,15 +4,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-import time
-
 import numpy as np
 import re
+import sys
 
 class browser:
     
     def __init__(self,chromedriver_path):
         
+        # Drivers options
         self.option = webdriver.ChromeOptions()
         self.option.add_argument(" — incognito")
         self.option.add_argument('--headless')
@@ -20,11 +20,14 @@ class browser:
         self.option.add_argument('--disable-gpu')
         self.option.add_argument('--disable-dev-shm-usage')
 
+        # Driver path
         self.chromedriver_path = chromedriver_path
         
+        # Page load strategy
         self.caps = DesiredCapabilities().CHROME
         self.caps["pageLoadStrategy"] = "none" 
         
+        # Initialize browser
         self.reset()
         
     def reset(self):
@@ -40,9 +43,7 @@ class browser:
         self.waitForElement('#acces_aux_comptes a').click()
 
         #a = self.browser.find_element_by_css_selector('input[name="CCPTE"]')
-        a = self.waitForElement('input[name="CCPTE"]')
-        a.send_keys(account)
-        
+        self.waitForElement('input[name="CCPTE"]').send_keys(account)
 
         map = np.zeros((10,2),dtype='uint8')
 
@@ -56,12 +57,12 @@ class browser:
 
         for i in passwd:
             #self.browser.find_element_by_css_selector('#pave-saisie-code tr:nth-of-type(' + str(map[int(i),0]) + ') td:nth-of-type(' + str(map[int(i),1]) + ')').click()
-            a = self.waitForElement('#pave-saisie-code tr:nth-of-type(' + str(map[int(i),0]) + ') td:nth-of-type(' + str(map[int(i),1]) + ')').click()
+            self.waitForElement('#pave-saisie-code tr:nth-of-type(' + str(map[int(i),0]) + ') td:nth-of-type(' + str(map[int(i),1]) + ')').click()
         
         #self.browser.find_element_by_css_selector('span.droite a:nth-of-type(2)').click()
-        a = self.waitForElement('span.droite a:nth-of-type(2)').click()
+        self.waitForElement('span.droite a:nth-of-type(2)').click()
         #self.browser.find_element_by_css_selector('#btn-sos_2').click()
-        a = self.waitForElement('#btn-sos_2').click()
+        self.waitForElement('#btn-sos_2').click()
              
     def retrieve(self,account,last=None):
         
@@ -96,8 +97,7 @@ class browser:
                     for idx, col in enumerate(cols):
                         if idx == 3:
                             split = col.text.split('\n')
-                            row_out.append(split[0])
-
+                            
                             text = ' '.join(split[1:])
 
                             date = date_pattern.findall(text)
@@ -106,10 +106,12 @@ class browser:
                                 text = date_pattern.sub('',text)
                             else:
                                 row_out.append('')
+                                
+                            row_out.append(split[0])
                             row_out.append(text)
                         elif idx not in [2,4]:
                             row_out.append(col.text)
-                    
+
                     if len(row_out):
                         out.append(row_out)
                         if last is not None:
@@ -120,12 +122,13 @@ class browser:
                     if last is not None:
                         if match == (len(last)-1):
                             break
-
-                print('page: %i obs: %i' % (page,len(out)))
-                page += 1   
                 if last is not None:
                     if match == (len(last)-1):
-                            break     
+                        print('Operations already up to date.')
+                        break
+                sys.stdout.write('\rpage: ' + str(page) + ' obs: ' + str(len(out)))
+                sys.stdout.flush()
+                page += 1 
             except:
                  break
         if last is not None:
