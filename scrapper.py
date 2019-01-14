@@ -131,8 +131,9 @@ class browser:
                     sys.stdout.write('\rpage: ' + str(page) + ' obs: ' + str(len(out)))
                     sys.stdout.flush()
                     page += 1 
-                except:
-                     break
+                except Exception as e:
+                    print(str(e))
+                    break
             if last is not None:
                 if match:
                     out = out[:-match]
