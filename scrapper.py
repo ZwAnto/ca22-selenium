@@ -34,11 +34,17 @@ class browser:
         self.browser = webdriver.Chrome(executable_path=self.chromedriver_path, options=self.option, desired_capabilities= self.caps)
         self.browser.implicitly_wait(30)
         
-    def waitForElement(self,selector,by=By.CSS_SELECTOR,click=False):
+    def waitForElement(self,selector,by=By.CSS_SELECTOR,click=False,multiple=False):
+        
+        if multiple:
+            EC_func = EC.presence_of_element_located
+        else:
+            EC_func = EC.presence_of_all_elements_located
+        
         staleElement = True
         while staleElement:
             try:
-                el = WebDriverWait(self.browser, 30).until(EC.presence_of_element_located((by, selector)))
+                el = WebDriverWait(self.browser, 30).until(EC_func((by, selector)))
                 if click:
                     el.click()
                 staleElement = False
@@ -97,17 +103,19 @@ class browser:
                         # Click for next page
                         self.waitForElement('a#lien_page_suivante',click=True)
 
-                    a = self.waitForElement('.ca-table:nth-of-type(2) tr')
+                    rows = self.waitForElement('.ca-table:nth-of-type(2) tr',multiple = True)
                     #rows = a.find_elements_by_css_selector("tr")
-                    rows = self.browser.find_elements_by_css_selector('.ca-table:nth-of-type(2) tr')
+                    #rows = self.browser.find_elements_by_css_selector('.ca-table:nth-of-type(2) tr')
+                    
                     print('TR OK')
                     
                     self.waitForElement('#PLIER_DEPLIER_OPERATIONS_O').click()
                     print('BTN OK')
                     for row in rows:
                         print('ROW OK')
-                        #cols = row.find_elements_by_css_selector("td")
-                        cols = WebDriverWait(self.browser, 30).until(EC.presence_of_element_located(row.find_elements_by_css_selector("td")))
+                        cols = row.find_elements_by_css_selector("td")
+                        #cols = self.waitForElement('.ca-table:nth-of-type(2) tr',multiple = True)
+                        #cols = WebDriverWait(self.browser, 30).until(EC.presence_of_element_located(row.find_elements_by_css_selector("td")))
                         print('TD OK')
                         row_out = []
                         for idx, col in enumerate(cols):
