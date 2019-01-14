@@ -34,25 +34,18 @@ class browser:
         self.browser = webdriver.Chrome(executable_path=self.chromedriver_path, options=self.option, desired_capabilities= self.caps)
         self.browser.implicitly_wait(30)
         
-    def waitForElement(self,selector,by=By.CSS_SELECTOR):
+    def waitForElement(self,selector,by=By.CSS_SELECTOR,click=False):
         staleElement = True
         while staleElement:
             try:
                 el = WebDriverWait(self.browser, 30).until(EC.presence_of_element_located((by, selector)))
+                if click:
+                    el.click()
                 staleElement = False
             except StaleElementReferenceException:
                 staleElement = True
-        return(el)
-    
-    def click(self,selector,by=By.CSS_SELECTOR):
-        staleElement = True
-        while staleElement:
-            try:
-                el = WebDriverWait(self.browser, 30).until(EC.presence_of_element_located((by, selector)))
-                el.click()
-                staleElement = False
-            except StaleElementReferenceException:
-                staleElement = True
+        if not click:
+            return(el)
     
     def connect(self,account,passwd):
         self.browser.get("https://www.ca-cotesdarmor.fr/")
@@ -85,7 +78,7 @@ class browser:
         
         try:
             self.waitForElement('#bnc-compte-href').click()
-            self.click("//a[contains(., '" + account + "')]",By.XPATH)
+            self.waitForElement("//a[contains(., '" + account + "')]",By.XPATH,click=True)
             print('XPATH OK')
             
             date_pattern = re.compile('[0-9]{2}/[0-9]{2}')
@@ -105,13 +98,16 @@ class browser:
                         self.browser.execute_script("$('#oic-container').hide()")
                         self.waitForElement('a#lien_page_suivante').click()
 
-                    a = self.waitForElement('.ca-table:nth-of-type(2)')
-                    rows = a.find_elements_by_css_selector("tr")
+                    #a = self.waitForElement('.ca-table:nth-of-type(2)')
+                    #rows = a.find_elements_by_css_selector("tr")
+                    rows = self.waitForElement('.ca-table:nth-of-type(2) tr')
                     print('TR OK')
+                    
                     self.waitForElement('#PLIER_DEPLIER_OPERATIONS_O').click()
 
                     for row in rows:
-                        cols = row.find_elements_by_css_selector("td")
+                        #cols = row.find_elements_by_css_selector("td")
+                        cols = WebDriverWait(self.browser, 30).until(EC.presence_of_element_located(row.find_elements_by_css_selector("td")))
                         print('TD OK')
                         row_out = []
                         for idx, col in enumerate(cols):
