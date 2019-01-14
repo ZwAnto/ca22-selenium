@@ -66,75 +66,79 @@ class browser:
              
     def retrieve(self,account,last=None):
         
-        self.waitForElement('#bnc-compte-href').click()
-        self.waitForElement("//a[contains(., '" + account + "')]",By.XPATH).click()
-        
-        date_pattern = re.compile('[0-9]{2}/[0-9]{2}')
+        try:
+            self.waitForElement('#bnc-compte-href').click()
+            self.waitForElement("//a[contains(., '" + account + "')]",By.XPATH).click()
 
-        out=[]
-        first = True
-        page = 1
-        
-        match = 0
-        
-        while True:
-            try:
-                if first:
-                    first = False
-                else:
-                    self.waitForElement('#oic-container')
-                    self.browser.execute_script("$('#oic-container').hide()")
-                    self.waitForElement('a#lien_page_suivante').click()
+            date_pattern = re.compile('[0-9]{2}/[0-9]{2}')
 
-                a = self.waitForElement('.ca-table:nth-of-type(2)')
-                rows = a.find_elements_by_css_selector("tr")
-                self.waitForElement('#PLIER_DEPLIER_OPERATIONS_O').click()
+            out=[]
+            first = True
+            page = 1
 
-                for row in rows:
-                    cols = row.find_elements_by_css_selector("td")
+            match = 0
 
-                    row_out = []
-                    for idx, col in enumerate(cols):
-                        if idx == 3:
-                            split = col.text.split('\n')
-                            
-                            text = ' '.join(split[1:])
+            while True:
+                try:
+                    if first:
+                        first = False
+                    else:
+                        self.waitForElement('#oic-container')
+                        self.browser.execute_script("$('#oic-container').hide()")
+                        self.waitForElement('a#lien_page_suivante').click()
 
-                            date = date_pattern.findall(text)
-                            if len(date):
-                                row_out.append(date[0])
-                                text = date_pattern.sub('',text)
-                            else:
-                                row_out.append('')
-                                
-                            row_out.append(split[0])
-                            row_out.append(text)
-                        elif idx not in [2,4]:
-                            row_out.append(col.text)
+                    a = self.waitForElement('.ca-table:nth-of-type(2)')
+                    rows = a.find_elements_by_css_selector("tr")
+                    self.waitForElement('#PLIER_DEPLIER_OPERATIONS_O').click()
 
-                    if len(row_out):
-                        out.append(row_out)
+                    for row in rows:
+                        cols = row.find_elements_by_css_selector("td")
+
+                        row_out = []
+                        for idx, col in enumerate(cols):
+                            if idx == 3:
+                                split = col.text.split('\n')
+
+                                text = ' '.join(split[1:])
+
+                                date = date_pattern.findall(text)
+                                if len(date):
+                                    row_out.append(date[0])
+                                    text = date_pattern.sub('',text)
+                                else:
+                                    row_out.append('')
+
+                                row_out.append(split[0])
+                                row_out.append(text)
+                            elif idx not in [2,4]:
+                                row_out.append(col.text)
+
+                        if len(row_out):
+                            out.append(row_out)
+                            if last is not None:
+                                if row_out == last[match]:
+                                    match += 1
+                                else:
+                                    match = 0
                         if last is not None:
-                            if row_out == last[match]:
-                                match += 1
-                            else:
-                                match = 0
+                            if match == (len(last)-1):
+                                break
                     if last is not None:
                         if match == (len(last)-1):
+                            print('Operations already up to date.')
                             break
-                if last is not None:
-                    if match == (len(last)-1):
-                        print('Operations already up to date.')
-                        break
-                sys.stdout.write('\rpage: ' + str(page) + ' obs: ' + str(len(out)))
-                sys.stdout.flush()
-                page += 1 
-            except:
-                 break
-        if last is not None:
-            if match:
-                out = out[:-match]
-        return(out)
-    
+                    sys.stdout.write('\rpage: ' + str(page) + ' obs: ' + str(len(out)))
+                    sys.stdout.flush()
+                    page += 1 
+                except:
+                     break
+            if last is not None:
+                if match:
+                    out = out[:-match]
+            return(out)
+        except Exception,e: 
+            print(str(e))
+            self.quit()
+
     def quit(self):
         self.browser.quit()
