@@ -98,9 +98,9 @@ class browser:
                         self.browser.execute_script("$('#oic-container').hide()")
                         self.waitForElement('a#lien_page_suivante').click()
 
-                    #a = self.waitForElement('.ca-table:nth-of-type(2)')
+                    a = self.waitForElement('.ca-table:nth-of-type(2) tr')
                     #rows = a.find_elements_by_css_selector("tr")
-                    rows = self.waitForElement('.ca-table:nth-of-type(2) tr')
+                    rows = self.browser.find_elements_by_css_selector('.ca-table:nth-of-type(2) tr')
                     print('TR OK')
                     
                     self.waitForElement('#PLIER_DEPLIER_OPERATIONS_O').click()
