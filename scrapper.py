@@ -31,14 +31,13 @@ class browser:
         self.browser = webdriver.Chrome(executable_path=self.chromedriver_path, options=self.option, desired_capabilities= self.caps)
 
     def waitForElement(self,selector,by=By.CSS_SELECTOR):
-        el = WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((by, selector)))
+        el = WebDriverWait(self.browser, 30).until(EC.presence_of_element_located((by, selector)))
         return(el)
     
     def connect(self,account,passwd):
-        WebDriverWait(self.browser.get("https://www.ca-cotesdarmor.fr/"), 10).until(EC.presence_of_element_located((By.CSS_SELECTOR,'#acces_aux_comptes a')))
-        #a = self.browser.find_element_by_css_selector('#acces_aux_comptes a')
-        a = self.waitForElement('#acces_aux_comptes a')
-        a.click()
+        self.browser.get("https://www.ca-cotesdarmor.fr/")
+        self.browser.find_element_by_css_selector('#acces_aux_comptes a').click()
+        self.waitForElement('#acces_aux_comptes a').click()
 
         #a = self.browser.find_element_by_css_selector('input[name="CCPTE"]')
         a = self.waitForElement('input[name="CCPTE"]')
