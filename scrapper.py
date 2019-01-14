@@ -36,7 +36,7 @@ class browser:
     
     def connect(self,account,passwd):
         self.browser.get("https://www.ca-cotesdarmor.fr/")
-        self.browser.find_element_by_css_selector('#acces_aux_comptes a').click()
+        #self.browser.find_element_by_css_selector('#acces_aux_comptes a').click()
         self.waitForElement('#acces_aux_comptes a').click()
 
         #a = self.browser.find_element_by_css_selector('input[name="CCPTE"]')
