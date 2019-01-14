@@ -68,6 +68,7 @@ class browser:
         
         try:
             self.waitForElement('#bnc-compte-href').click()
+            self.waitForElement('.ca-table')
             self.waitForElement("//a[contains(., '" + account + "')]",By.XPATH).click()
 
             date_pattern = re.compile('[0-9]{2}/[0-9]{2}')
