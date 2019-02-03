@@ -11,10 +11,7 @@ args = parser.parse_args()
 
 import numpy as np
 import pymysql
-from saveload import *
 from scrapper import browser, md5_hash
-import pickle
-import hashlib
 import pandas as pd
 import configparser
 import sys
