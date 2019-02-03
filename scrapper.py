@@ -7,6 +7,11 @@ import sys
 import pickle
 import hashlib
 
+def md5_hash(arr):
+    if type(arr) == np.ndarray:
+        arr = arr.tolist()
+    return(hashlib.md5(pickle.dumps([[i.encode('utf-8') for i in j] for j in arr])).hexdigest())
+
 class HistoryReachedError(Exception):
     def __init__(self, message, errors):
 
@@ -113,9 +118,20 @@ class browser:
                                 row_out.append(col.text)
 
                         if len(row_out):
+                            
+                            a = row_out[:5]
+                            if a[2] == '':
+                                a[2] = a[1]
+                            b = [re.sub(',','.',i).strip() for i in row_out[5:]]
+                            b = [re.sub(' |\\\\','',i) for i in b]
+                            b = ['0' if i == '' else i for i in b ]
+                            b = [str(float(i)) for i in b]
+                            
+                            row_out = a+b
+                            
                             out.append(row_out)
                             if last_md5 is not None:
-                                md5 = hashlib.md5(pickle.dumps(out[-10:])).hexdigest()   
+                                md5 = md5_hash(out[-10:]) 
                                 if md5 == last_md5:
                                     raise(HistoryReachedError('a','a'))
                                     
@@ -125,11 +141,11 @@ class browser:
                 except NoSuchElementException:
                     break
                 except HistoryReachedError:
-                    new_md5 = hashlib.md5(pickle.dumps(out[:10])).hexdigest()   
+                    new_md5 = md5_hash(out[:10])
                     out = out[:-10]
                     break
                 else:
-                    new_md5 = hashlib.md5(pickle.dumps(out[:10])).hexdigest()   
+                    new_md5 = md5_hash(out[:10]) 
             return((out,new_md5))
         except Exception as e: 
             print(str(e))
