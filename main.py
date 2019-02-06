@@ -80,9 +80,8 @@ else:
 
         sys.stdout.write('Building SQL query... ')
         sys.stdout.flush()
-        if not os.path.isfile(config['SCRAPER']['DIR_OUT'] + 'ca22.sql'):
-            with open(config['SCRAPER']['DIR_OUT'] + 'ca22.sql','w') as f:
-                f.write('INSERT INTO ' + config['SQL']['TABLE'] + ' (date_record,date_value,date_desc,type,description,debit,credit) VALUES ')
+        with open(config['SCRAPER']['DIR_OUT'] + 'ca22.sql','w') as f:
+            f.write('INSERT INTO ' + config['SQL']['TABLE'] + ' (date_record,date_value,date_desc,type,description,debit,credit) VALUES ')
 
         with open(config['SCRAPER']['DIR_OUT'] + 'ca22.sql','a') as f:
             for i in range(len(operations)):
