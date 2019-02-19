@@ -65,9 +65,11 @@ else:
     # Computing MD5 hash
     md5 = md5_hash(result) 
     
+    # Closing SQL connection
     cursor.close()
     sql.close()
 
+    # Scraping operations
     print('Retrieving operation... ')
     operations, new_md5 = chrome.retrieve(config['BANK']['ACCOUNT'],md5)
     chrome.quit()
@@ -77,8 +79,6 @@ else:
     else:
         print('')
         print('%i operations added' % (len(operations)))
-
-    # RETRIEVE OPERATIONS #########################################
     
         try:
             sql = pymysql.connect(**sql_config)
@@ -87,6 +87,7 @@ else:
         else:
             cursor = sql.cursor()
             
+            # Pushing new op to database
             sys.stdout.write('Pushing to database... ')
             sys.stdout.flush()
 
@@ -95,6 +96,7 @@ else:
             
             print('\033[92mOK\033[0m')
             
+            # Computing missing year
             sys.stdout.write('Computing missing years... ')
             sys.stdout.flush()
             
@@ -112,12 +114,14 @@ else:
 
             vals = [[int(i),j] for j,i in zip(year_[1:],scraping['id'][1:].values)]
 
+            # Pushing years in ref_year            
             if len(vals):
                 cursor.executemany("insert into ref_year(id, year) values (%s, %s)", vals )
                 sql.commit()
     
             print('\033[92mOK\033[0m')
     
+            # Closing sql connection
             cursor.close()
             sql.close()
             print('\033[92mOK\033[0m')
