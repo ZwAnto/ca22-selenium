@@ -69,7 +69,7 @@ else:
     print('Retrieving operation... ')
     operations, new_md5 = chrome.retrieve(config['BANK']['ACCOUNT'],md5)
     chrome.quit()
-
+    
     if new_md5 == md5:
         print('Already up to date')
     else:
@@ -78,45 +78,16 @@ else:
 
     # RETRIEVE OPERATIONS #########################################
 
-        sys.stdout.write('Building SQL query... ')
-        sys.stdout.flush()
-        with open(config['SCRAPER']['DIR_OUT'] + 'ca22.sql','w') as f:
-            f.write('INSERT INTO ' + config['SQL']['TABLE'] + ' (date_record,date_value,date_desc,type,description,debit,credit) VALUES ')
-
-        with open(config['SCRAPER']['DIR_OUT'] + 'ca22.sql','a') as f:
-            for i in range(len(operations)):
-                a = [ '"' + i + '"' for i in operations[-(i+1)][:5]]
-                if a[2] == '""':
-                    a[2] = a[1]
-                b = [re.sub(',','.',i).strip() for i in operations[-(i+1)][5:]]
-                b = [re.sub(' |\\\\','',i) for i in b]
-                b = ['0' if i == '' else i for i in b ]
-
-                f.writelines('(' + ','.join(a+b) + '),')
-        print('\033[92mOK\033[0m')
-
         sys.stdout.write('Pushing to database... ')
         sys.stdout.flush()
 
-if os.path.isfile(config['SCRAPER']['DIR_OUT'] + 'ca22.sql'):
-    try:
-        sql = pymysql.connect(**sql_config)
-    except pymysql.OperationalError as err:
-        print('Erreur de connexion')
-    else:
-        cursor = sql.cursor()
         try:
-            with open(config['SCRAPER']['DIR_OUT'] + 'ca22.sql','r') as file:
-                query = file.read()
-            query = re.sub(',$',';',query)
-            cursor.execute(query)
-        except Exception as e:
-            cursor.close()
-            sql.close()
-            print('FAIL')
-            print(e)
+            sql = pymysql.connect(**sql_config)
+        except pymysql.OperationalError as err:
+            print('Erreur de connexion')
         else:
-            os.remove(config['SCRAPER']['DIR_OUT'] + 'ca22.sql')
+            cursor = sql.cursor()
+            cursor.executemany('INSERT INTO ' + config['SQL']['TABLE'] + ' (date_record,date_value,date_desc,type,description,debit,credit) VALUES (%s, %s, %s, %s, %s, %s, %s)', list(reversed(operations)))
             sql.commit()
             cursor.close()
             sql.close()
