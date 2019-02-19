@@ -49,7 +49,7 @@ chrome.connect(config['LOGIN']['ACCOUNT'],
                config['LOGIN']['PASSWORD'])
 print('\033[92mOK\033[0m')
 
-# READING CHECKSUM ############################################
+# RETRIEVE OPERATIONS #########################################
 
 try:
     sql = pymysql.connect(**sql_config)
@@ -57,14 +57,16 @@ except pymysql.OperationalError as err:
     print('Erreur de connexion')
 else:
     cursor = sql.cursor()
+    
+    # Retrieveing last 10 op
     cursor.execute('SELECT date_record,date_value,date_desc,type,description,debit,credit FROM (SELECT * FROM ' + config['SQL']['TABLE'] + ' ORDER BY id DESC LIMIT 10) as t1')
     result = np.asarray(cursor.fetchall())
+    
+    # Computing MD5 hash
     md5 = md5_hash(result) 
     
     cursor.close()
     sql.close()
-
-    # RETRIEVE OPERATIONS #########################################
 
     print('Retrieving operation... ')
     operations, new_md5 = chrome.retrieve(config['BANK']['ACCOUNT'],md5)
@@ -77,18 +79,45 @@ else:
         print('%i operations added' % (len(operations)))
 
     # RETRIEVE OPERATIONS #########################################
-
-        sys.stdout.write('Pushing to database... ')
-        sys.stdout.flush()
-
+    
         try:
             sql = pymysql.connect(**sql_config)
         except pymysql.OperationalError as err:
             print('Erreur de connexion')
         else:
             cursor = sql.cursor()
+            
+            sys.stdout.write('Pushing to database... ')
+            sys.stdout.flush()
+
             cursor.executemany('INSERT INTO ' + config['SQL']['TABLE'] + ' (date_record,date_value,date_desc,type,description,debit,credit) VALUES (%s, %s, %s, %s, %s, %s, %s)', list(reversed(operations)))
             sql.commit()
+            
+            print('\033[92mOK\033[0m')
+            
+            sys.stdout.write('Computing missing years... ')
+            sys.stdout.flush()
+            
+            cursor.execute('SELECT max(id),max(year) from ref_year')
+            year = np.asarray(cursor.fetchall())
+
+            cursor.execute('SELECT * from scraping where id >= ' + str(year[0][0]))
+            scraping = pd.DataFrame(np.asarray(cursor.fetchall()))
+            scraping.columns = np.asarray(cursor.description)[:,0]
+
+            i = 'date_record'
+
+            year_ = scraping[i].str.split('/').str[1]
+            year_ = (year_.shift(1) > year_).cumsum() + year[0][1]
+
+            vals = [[int(i),j] for j,i in zip(year_[1:],scraping['id'][1:].values)]
+
+            if len(vals):
+                cursor.executemany("insert into ref_year(id, year) values (%s, %s)", vals )
+                sql.commit()
+    
+            print('\033[92mOK\033[0m')
+    
             cursor.close()
             sql.close()
             print('\033[92mOK\033[0m')
