@@ -12,6 +12,7 @@ args = parser.parse_args()
 import numpy as np
 import pymysql
 from scrapper import browser, md5_hash
+from mail import sendMail
 import pandas as pd
 import configparser
 import sys
@@ -79,6 +80,7 @@ else:
     else:
         print('')
         print('%i operations added' % (len(operations)))
+        sendMail(len(operations),config['MAIL']['USER'],config['MAIL']['PASSWORD'])
     
         try:
             sql = pymysql.connect(**sql_config)
