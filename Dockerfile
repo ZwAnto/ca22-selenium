@@ -38,6 +38,7 @@ WORKDIR /opt/
 
 ADD scrapper.py scrapper.py
 ADD main.py main.py
+ADD mail.py mail.py
 ADD config.ini config.ini
 
 ### CRON JOB ##############################################################
