@@ -44,7 +44,7 @@ ADD config.ini config.ini
 ### CRON JOB ##############################################################
 
 #RUN crontab -l > cron
-RUN echo '3 0 * * * python3 /opt/main.py /opt/config.ini' >> cron
+RUN echo '0 23 * * * python3 /opt/main.py /opt/config.ini' >> cron
 RUN crontab cron
 
 ### START SCRIPT ##########################################################
