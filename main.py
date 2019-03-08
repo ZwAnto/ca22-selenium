@@ -75,13 +75,14 @@ else:
     operations, new_md5 = chrome.retrieve(config['BANK']['ACCOUNT'],md5)
     chrome.quit()
     
+    sendMail(len(operations),config['MAIL']['USER'],config['MAIL']['PASSWORD'])
+    
     if new_md5 == md5:
         print('Already up to date')
     else:
         print('')
         print('%i operations added' % (len(operations)))
-        sendMail(len(operations),config['MAIL']['USER'],config['MAIL']['PASSWORD'])
-    
+        
         try:
             sql = pymysql.connect(**sql_config)
         except pymysql.OperationalError as err:
