@@ -54,4 +54,4 @@ RUN echo '/bin/sh' >> start.sh
 
 ### START SCRIPT ##########################################################
 
-CMD ["/opt/start.sh"]
+CMD ["/bin/sh /opt/start.sh"]
