@@ -6,6 +6,7 @@ import re
 import sys
 import pickle
 import hashlib
+import time
 
 def md5_hash(arr):
     if type(arr) == np.ndarray:
@@ -19,7 +20,7 @@ class HistoryReachedError(Exception):
         super().__init__(message)
 
         # Now for your custom code...
-        self.errors = errors
+        errors = errors
 
 class browser:
     
@@ -39,105 +40,89 @@ class browser:
         # Page load strategy
         self.caps = DesiredCapabilities().CHROME
         self.caps["pageLoadStrategy"] = "normal" 
-        
         # Initialize browser
         self.reset()
         
     def reset(self):
         self.browser = webdriver.Chrome(executable_path=self.chromedriver_path, options=self.option, desired_capabilities= self.caps)
+        self.browser.set_window_size(1920, 1080)
+
   
     def connect(self,account,passwd):
-        self.browser.get("https://www.ca-cotesdarmor.fr/")
-        self.browser.find_element_by_css_selector('#acces_aux_comptes a').click()
+        self.browser.get("https://www.credit-agricole.fr/ca-cotesdarmor/particulier/acceder-a-mes-comptes.html")
+        time.sleep(0.5)
         self.browser.find_element_by_css_selector('input[name="CCPTE"]').send_keys(account)
+        time.sleep(0.5)
+        self.browser.find_element_by_css_selector('button[aria-label="Validation du code personnel"]').click()
+        time.sleep(0.5)
 
-        map = np.zeros((10,2),dtype='uint8')
+        pass_btn = self.browser.find_elements_by_css_selector(".Login-keypad a")
 
-        for i in range(25):
-            j = str(i // 5 + 1)
-            k = str(i % 5 + 1)
-            
-            css = '#pave-saisie-code tr:nth-of-type(' + j + ') td:nth-of-type(' + k + ')'
-            a = self.browser.find_element_by_css_selector(css)
-            
-            if a.text.strip() != '':
-                map[int(a.text.strip())] = (j,k)
+        map = {}
+        for i in pass_btn:
+            map[i.find_element_by_css_selector('div').text] = i
 
         for i in passwd:
-            css = '#pave-saisie-code tr:nth-of-type(' + str(map[int(i),0]) + ') td:nth-of-type(' + str(map[int(i),1]) + ')'
-            self.browser.find_element_by_css_selector(css).click()
+            map[i].click()
         
-        self.browser.find_element_by_css_selector('span.droite a:nth-of-type(2)').click()
-        self.browser.find_element_by_css_selector('#btn-sos_2').click()
+        self.browser.find_element_by_css_selector('#validation').click()
 
     def retrieve(self,account,last_md5=None):
         try:
-            self.browser.find_element_by_css_selector('#bnc-compte-href').click()
-            self.browser.find_element_by_xpath("//a[contains(., '" + account + "')]").click()
             
+            months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+            self.browser.execute_script("$('.npcd-mask').hide()")
+            self.browser.find_element_by_css_selector('.SynthesisAccounts .SynthesisAccount:nth-of-type(1)').click()
+
+            ops = self.browser.find_elements_by_css_selector('#bloc-operations li')
+
+            def parse_date(date):
+                date = re.split('[ ,]', date)
+                month = [i+1 for i,m in enumerate(months) if m == date[0]][0]
+                return date[1].zfill(2) + '/' + str(month).zfill(2)
+
+            def parse_montant(montant):
+                if montant[0] == '-':
+                    debit = str(float(re.sub(',','.',re.sub('[-+] ?([0-9,]*).*','\\1',montant))))
+                    credit = str(float(0))
+                else:
+                    credit = str(float(re.sub(',','.',re.sub('[-+] ?([0-9,]*).*','\\1',montant))))
+                    debit = str(float(0))
+
+                return debit, credit
+
+
             date_pattern = re.compile('[0-9]{2}/[0-9]{2}')
 
-            out=[]
-            first = True
-            page = 1
-            match = 0
-
-            while True:
+            out = []
+            for op in ops:
+                if len(out) == 10:
+                    break
                 try:
-                    if first:
-                        first = False
-                    else:
-                        # Hiding sidebar 
-                        self.browser.execute_script("$('#oic-container').hide()")
-                        # Click for next page
-                        self.browser.find_element_by_css_selector('a#lien_page_suivante').click()
+                    date_op = parse_date(op.find_element_by_css_selector("#dateOperation").get_attribute('aria-label'))
+                    date_val = parse_date(op.find_element_by_css_selector("#dateValeur").get_attribute('aria-label'))
+                    op_type = op.find_element_by_css_selector("div .Operation-type").text
+                    op_name = op.find_element_by_css_selector("div .Operation-name").text
+                    debit, credit = parse_montant(op.find_element_by_css_selector("#montant").text)
 
-                    rows = self.browser.find_elements_by_css_selector('.ca-table:nth-of-type(2) tbody tr')
+                    date_desc = date_pattern.findall(op_name)
+                    date_desc = date_op if not len(date_desc) else date_desc[0]
                     
-                    self.browser.find_element_by_css_selector('#PLIER_DEPLIER_OPERATIONS_O').click()
-                    
-                    for row in rows:
-                        cols = row.find_elements_by_css_selector("td")
-                        row_out = []
-                        for idx, col in enumerate(cols):
-                            if idx == 3:
-                                split = col.text.split('\n')
+                    op_name = date_pattern.sub('', op_name)
 
-                                text = ' '.join(split[1:])
+                    for i in op.find_elements_by_css_selector('.Operation-main'):
+                        op_name = op_name + ' ' + i.text
 
-                                date = date_pattern.findall(text)
-                                if len(date):
-                                    row_out.append(date[0])
-                                    text = date_pattern.sub('',text)
-                                else:
-                                    row_out.append('')
+                    op_name = re.sub('\n','',op_name)
 
-                                row_out.append(split[0])
-                                row_out.append(text)
-                            elif idx not in [2,4]:
-                                row_out.append(col.text)
+                    out.append([date_op, date_val, date_desc, op_type, op_name, debit, credit])
 
-                        if len(row_out):
-                            
-                            a = row_out[:5]
-                            if a[2] == '':
-                                a[2] = a[1]
-                            b = [re.sub(',','.',i).strip() for i in row_out[5:]]
-                            b = [re.sub(' |\\\\','',i) for i in b]
-                            b = ['0' if i == '' else i for i in b ]
-                            b = [str(float(i)) for i in b]
-                            
-                            row_out = a+b
-                            
-                            out.append(row_out)
-                            if last_md5 is not None:
-                                md5 = md5_hash(out[-10:]) 
-                                if md5 == last_md5:
-                                    raise(HistoryReachedError('a','a'))
-                                    
-                    sys.stdout.write('\rpage: ' + str(page) + ' obs: ' + str(len(out)))
-                    sys.stdout.flush()
-                    page += 1 
+                    if last_md5 is not None:
+                        md5 = md5_hash(out[-10:]) 
+                        if md5 == last_md5:
+                            raise(HistoryReachedError('a','a'))
+    
                 except NoSuchElementException:
                     break
                 except HistoryReachedError:
@@ -149,7 +134,7 @@ class browser:
             return((out,new_md5))
         except Exception as e: 
             print(str(e))
-            self.quit()
+            quit()
 
     def quit(self):
         self.browser.quit()
