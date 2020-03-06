@@ -66,15 +66,16 @@ class browser:
             map[i].click()
         
         self.browser.find_element_by_css_selector('#validation').click()
+        time.sleep(1)
+
+        pass
 
     def retrieve(self,account,last_md5=None):
         try:
             
             months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
-            self.browser.execute_script("$('.npcd-mask').hide()")
-            time.sleep(0.5)
-            self.browser.find_element_by_css_selector('.SynthesisAccounts .SynthesisAccount:nth-of-type(1)').click()
+            self.browser.get('https://www.credit-agricole.fr/ca-cotesdarmor/particulier/operations/synthese/detail-comptes.html?idx=1&famillecode=1#!/')
 
             ops = self.browser.find_elements_by_css_selector('#bloc-operations li')
 
@@ -98,8 +99,6 @@ class browser:
 
             out = []
             for op in ops:
-                if len(out) == 10:
-                    break
                 try:
                     date_op = parse_date(op.find_element_by_css_selector("#dateOperation").get_attribute('aria-label'))
                     date_val = parse_date(op.find_element_by_css_selector("#dateValeur").get_attribute('aria-label'))
