@@ -73,6 +73,7 @@ class browser:
             months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
             self.browser.execute_script("$('.npcd-mask').hide()")
+            time.sleep(0.5)
             self.browser.find_element_by_css_selector('.SynthesisAccounts .SynthesisAccount:nth-of-type(1)').click()
 
             ops = self.browser.find_elements_by_css_selector('#bloc-operations li')
