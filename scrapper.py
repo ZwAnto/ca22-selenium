@@ -111,10 +111,13 @@ class browser:
                     
                     op_name = date_pattern.sub('', op_name)
 
-                    for i in op.find_elements_by_css_selector('.Operation-main'):
-                        op_name = op_name + ' ' + i.text
+                    for i in op.find_elements_by_css_selector('.Operation-list .Operation-main div'):
+                        op_name = op_name + ' ' + i.get_attribute("textContent")
 
-                    op_name = re.sub('\n','',op_name)
+                    op_name = re.sub('\n',' ',op_name)
+                    op_name = re.sub('\t',' ', op_name)
+                    op_name = re.sub('[ ]{1,}',' ', op_name)
+                    op_name = op_name.strip()
 
                     out.append([date_op, date_val, date_desc, op_type, op_name, debit, credit])
 

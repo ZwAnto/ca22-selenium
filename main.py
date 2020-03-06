@@ -60,7 +60,7 @@ else:
     cursor = sql.cursor()
     
     # Retrieveing last 10 op
-    cursor.execute('SELECT date_record,date_value,date_desc,UPPER(type),UPPER(description),debit,credit FROM (SELECT * FROM ' + config['SQL']['TABLE'] + ' ORDER BY id DESC LIMIT 10) as t1')
+    cursor.execute('SELECT date_record,date_value,date_desc,type,description,debit,credit FROM (SELECT * FROM ' + config['SQL']['TABLE'] + ' ORDER BY id DESC LIMIT 10) as t1')
     result = np.asarray(cursor.fetchall())
     
     # Computing MD5 hash
@@ -94,7 +94,7 @@ else:
             sys.stdout.write('Pushing to database... ')
             sys.stdout.flush()
 
-            cursor.executemany('INSERT INTO ' + config['SQL']['eTABLE'] + ' (date_record,date_value,date_desc,type,description,debit,credit) VALUES (%s, %s, %s, %s, %s, %s, %s)', list(reversed(operations)))
+            cursor.executemany('INSERT INTO ' + config['SQL']['TABLE'] + ' (date_record,date_value,date_desc,type,description,debit,credit) VALUES (%s, %s, %s, %s, %s, %s, %s)', list(reversed(operations)))
             sql.commit()
             
             print('\033[92mOK\033[0m')
