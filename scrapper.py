@@ -11,7 +11,7 @@ import time
 def md5_hash(arr):
     if type(arr) == np.ndarray:
         arr = arr.tolist()
-    return(hashlib.md5(pickle.dumps([[i.encode('utf-8') for i in j] for j in arr])).hexdigest())
+    return(hashlib.md5(pickle.dumps([[str(i).encode('utf-8') for i in j] for j in arr])).hexdigest())
 
 class HistoryReachedError(Exception):
     def __init__(self, message, errors):
@@ -82,8 +82,8 @@ class browser:
             def parse_date(date):
                 date = re.split('[ ,]', date)
                 month = [i+1 for i,m in enumerate(months) if m == date[0]][0]
-                return date[1].zfill(2) + '/' + str(month).zfill(2)
-
+                return date[1].zfill(2) + '/' + str(month).zfill(2), date[3] + '-' + str(month).zfill(2) + '-' + date[1].zfill(2) 
+ 
             def parse_montant(montant):
                 if montant[0] == '-':
                     debit = str(float(re.sub(',','.',re.sub('[-+] ?([0-9,]*).*','\\1',montant))))
@@ -100,8 +100,8 @@ class browser:
             out = []
             for op in ops:
                 try:
-                    date_op = parse_date(op.find_element_by_css_selector("#dateOperation").get_attribute('aria-label'))
-                    date_val = parse_date(op.find_element_by_css_selector("#dateValeur").get_attribute('aria-label'))
+                    date_op, full_date = parse_date(op.find_element_by_css_selector("#dateOperation").get_attribute('aria-label'))
+                    date_val, _ = parse_date(op.find_element_by_css_selector("#dateValeur").get_attribute('aria-label'))
                     op_type = op.find_element_by_css_selector("div .Operation-type").text
                     op_name = op.find_element_by_css_selector("div .Operation-name").text
                     debit, credit = parse_montant(op.find_element_by_css_selector("#montant").text)
@@ -119,7 +119,7 @@ class browser:
                     op_name = re.sub('[ ]{1,}',' ', op_name)
                     op_name = op_name.strip()
 
-                    out.append([date_op, date_val, date_desc, op_type, op_name, debit, credit])
+                    out.append([date_op, date_val, date_desc, op_type, op_name, debit, credit, full_date])
 
                     if last_md5 is not None:
                         md5 = md5_hash(out[-10:]) 
