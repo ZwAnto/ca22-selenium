@@ -86,10 +86,12 @@ class browser:
  
             def parse_montant(montant):
                 if montant[0] == '-':
-                    debit = str(float(re.sub(',','.',re.sub('[-+] ?([0-9,]*).*','\\1',montant))))
+                    debit = re.sub(',','.',re.sub('[-+] ?([0-9, ]*).*','\\1',montant)).strip()
+                    debit = str(float(re.sub(' ','',debit)))
                     credit = str(float(0))
                 else:
-                    credit = str(float(re.sub(',','.',re.sub('[-+] ?([0-9,]*).*','\\1',montant))))
+                    credit = re.sub(',','.',re.sub('[-+] ?([0-9, ]*).*','\\1',montant)).strip()
+                    credit = str(float(re.sub(' ','',credit)))
                     debit = str(float(0))
 
                 return debit, credit
