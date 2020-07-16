@@ -78,7 +78,7 @@ class browser:
             self.browser.get('https://www.credit-agricole.fr/ca-cotesdarmor/particulier/operations/synthese/detail-comptes.html?idx=1&famillecode=1#!/')
 
             for _ in range(4):
-                self.browser.find_element_by_css_selector('.js-Operations-more').click()
+                self.browser.execute_script("$('.js-Operations-more').click()")
                 time.sleep(5)
             
             ops = self.browser.find_elements_by_css_selector('#bloc-operations li')
