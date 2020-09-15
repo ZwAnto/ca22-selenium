@@ -66,7 +66,7 @@ class browser:
             map[i].click()
         
         self.browser.find_element_by_css_selector('#validation').click()
-        time.sleep(1)
+        time.sleep(5)
 
         pass
 
@@ -77,7 +77,7 @@ class browser:
 
             self.browser.get('https://www.credit-agricole.fr/ca-cotesdarmor/particulier/operations/synthese/detail-comptes.html?idx=1&famillecode=1#!/')
 
-            for _ in range(4):
+            for _ in range(10):
                 self.browser.execute_script("$('.js-Operations-more').click()")
                 time.sleep(5)
             
