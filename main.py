@@ -16,8 +16,7 @@ def main(config_file='config.yml'):
         logging.error('File %s does not exist.', config_file)
         exit()
 
-    # CONFIGURATION FILE ##########################################
-
+    # Loading configuration file
     try:
         config = pyaml.yaml.load(open(config_file), Loader=pyaml.yaml.loader.BaseLoader)
     except Exception:
@@ -26,8 +25,7 @@ def main(config_file='config.yml'):
     else:
         logging.info('Configuration file sucessfully imported.')
 
-    # BROWSER INITIALISATION ######################################
-
+    # Initialize chromedriver
     try:
         chrome = browser(config['chromedriver'])
     except Exception:
@@ -36,8 +34,7 @@ def main(config_file='config.yml'):
     else:
         logging.info('Browser initialized sucessfully.')
 
-    # LOGIN #######################################################
-
+    # Login into bank website
     try:
         chrome.connect(**config['login'])
     except Exception:
@@ -46,8 +43,7 @@ def main(config_file='config.yml'):
     else:
         logging.info('Login sucessfull.')
 
-    # RETRIEVE OPERATIONS #########################################
-
+    # SQL connection
     try:
         sql_config = {
             'user':         config['sql']['username'],
@@ -64,8 +60,7 @@ def main(config_file='config.yml'):
     else:
         logging.info('SQL connection established.')
         
-    # HASH #########################################
-
+    # Hash of 10 last entries in sql database
     try:
         cursor = sql.cursor()
         
@@ -84,8 +79,7 @@ def main(config_file='config.yml'):
         sql.close()
         exit()
 
-    # RETRIEVING
-
+    # Retrieving new op from bank website
     try:
         operations, new_md5 = chrome.retrieve(config['bank_account'], md5)
         chrome.quit()
@@ -96,8 +90,7 @@ def main(config_file='config.yml'):
     else:
         logging.info('%i operations retrieved.', len(operations))
 
-
-
+    # Updatin database if needed
     if new_md5 == md5:
         logging.info('Database up-to-date.')
     else:
