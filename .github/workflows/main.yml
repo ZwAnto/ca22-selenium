@@ -38,28 +38,16 @@ jobs:
 
       - name: Building docker image
         uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.REMOTE_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: 22
-          script: sh ~/github/ca22-selenium/build.sh
-          
-      - name: pass environment
-        uses: appleboy/ssh-action@master
         env:
-          FOO: "BAR"
-          BAR: "FOO"
-          SHA: ${{ github.sha }}
+          PUSHED_APP_KEY: "${{ secrets.PUSHED_APP_KEY }}"
+          PUSHED_APP_SECRET: "${{ secrets.PUSHED_APP_SECRET }}"
+          CA_LOGIN: "${{ secrets.CA_LOGIN }}"
+          CA_PASSWORD: "${{ secrets.CA_PASSWORD }}"
+          CA_ACCOUNT: "${{ secrets.CA_ACCOUNT }}"
         with:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
-          envs: FOO,BAR
-          script: |
-            echo "I am ${{ secrets.REMOTE_HOST }}"
-            echo "I am $BAR"
-            echo "sha: $SHA"
-
-
+          envs: PUSHED_APP_KEY,PUSHED_APP_SECRET,CA_LOGIN,CA_PASSWORD,CA_ACCOUNT
+          script: sh ~/github/ca22-selenium/build.sh
