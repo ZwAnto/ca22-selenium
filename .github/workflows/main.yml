@@ -44,5 +44,22 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
           script: sh ~/github/ca22-selenium/build.sh
+          
+      - name: pass environment
+        uses: appleboy/ssh-action@master
+        env:
+          FOO: "BAR"
+          BAR: "FOO"
+          SHA: ${{ github.sha }}
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 22
+          envs: FOO,BAR
+          script: |
+            echo "I am ${{ secrets.REMOTE_HOST }}"
+            echo "I am $BAR"
+            echo "sha: $SHA"
 
 
