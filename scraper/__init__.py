@@ -27,7 +27,7 @@ def get_last10_md5():
 
     return md5_hash(last10) 
     
-def push_notification(text, config):
+def push_notification(text):
     requests.post("https://api.pushed.co/1/push", data={
         "app_key" : os.getenv('PUSHED_APP_KEY'),
         "app_secret" : os.getenv('PUSHED_APP_SECRET'),
