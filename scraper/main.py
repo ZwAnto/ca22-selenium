@@ -4,7 +4,6 @@ import logging
 import os
 
 import plac
-import pyaml
 import requests
 from selenium.common.exceptions import WebDriverException
 
@@ -13,20 +12,24 @@ from scraper.browser import Browser
 
 logging.basicConfig(format='[%(asctime)s][%(levelname)s] %(message)s',level=logging.INFO)
 
-def main(config_file='config.yml'):
+def main():
+
+    login = os.getenv('CA_LOGIN')
+    password = os.getenv('CA_PASSWORD')
+    account = os.getenv('CA_ACCOUNT')
+    chromedriver = os.getenv('CHROMEDRIVER_PATH')
 
     try:
-        config = pyaml.yaml.load(open(config_file), Loader=pyaml.yaml.loader.BaseLoader)
 
-        chrome = Browser(config['chromedriver'])
-        chrome.connect(**config['login'])
+        chrome = Browser(chromedriver)
+        chrome.connect(login, password)
 
-        operations = chrome.retrieve(config['bank_account'])
+        operations = chrome.retrieve(account)
 
         chrome.quit()
 
         if len(operations) == 0:
-            push_notification('Database up-to-date.', config)
+            push_notification('Database up-to-date.')
         else:
             operations = list(reversed(operations))
 
@@ -37,27 +40,19 @@ def main(config_file='config.yml'):
                 if r.status_code != 200:
                     raise requests.exceptions.HTTPError
             
-            push_notification('%i new operations added.' % (len(operations)), config)
-
-    except FileNotFoundError as e:
-        logging.error('Configuration file not found.')
-        push_notification('Configuration file not found.', config)
-
-    except pyaml.yaml.scanner.ScannerError as e:
-        logging.error('Error during config file parsing.')
-        push_notification('Error during config file parsing.', config)
+            push_notification('%i new operations added.' % (len(operations)))
 
     except WebDriverException as e:
         logging.error('Error with slenium driver.')
-        push_notification('Error with slenium driver.', config)
+        push_notification('Error with slenium driver.')
 
     except requests.exceptions.HTTPError as e:
         logging.error('Error during communication with fastapi.')
-        push_notification('Error during communication with fastapi.', config)
+        push_notification('Error during communication with fastapi.)
 
     except Exception as e:
         logging.error('Unknown Exception occured.')
-        push_notification('Unknown Exception occured.', config)
+        push_notification('Unknown Exception occured.')
         raise e
 
     finally:

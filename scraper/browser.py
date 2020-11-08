@@ -1,16 +1,12 @@
-import hashlib
-import pickle
 import re
-import sys
 import time
 
-import numpy as np
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from scraper import (get_last10_md5, load_more, md5_hash, parse_date,
                      parse_montant)
+
 
 class Browser:
     
@@ -61,7 +57,6 @@ class Browser:
         self.browser.find_element_by_css_selector('#validation').click()
         time.sleep(5)
 
-        pass
 
     def retrieve(self,account):
         try:

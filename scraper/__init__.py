@@ -1,9 +1,12 @@
-import requests
-import numpy as np
-import pickle
 import hashlib
-import time
+import os
+import pickle
 import re
+import time
+
+import numpy as np
+import requests
+
 
 def md5_hash(arr):
     if type(arr) == np.ndarray:
@@ -23,11 +26,11 @@ def get_last10_md5():
     last10 = np.asarray(last10)
 
     return md5_hash(last10) 
-
+    
 def push_notification(text, config):
-    requests.post(config['pushed']['endpoint'], data={
-        "app_key" : config['pushed']['app_key'],
-        "app_secret" : config['pushed']['app_secret'],
+    requests.post("https://api.pushed.co/1/push", data={
+        "app_key" : os.getenv('PUSHED_APP_KEY'),
+        "app_secret" : os.getenv('PUSHED_APP_SECRET'),
         "target_type" : "app",
         "content" : text,
     })
