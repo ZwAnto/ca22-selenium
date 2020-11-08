@@ -48,7 +48,7 @@ def main():
 
     except requests.exceptions.HTTPError as e:
         logging.error('Error during communication with fastapi.')
-        push_notification('Error during communication with fastapi.)
+        push_notification('Error during communication with fastapi.')
 
     except Exception as e:
         logging.error('Unknown Exception occured.')
