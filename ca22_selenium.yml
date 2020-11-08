@@ -1,6 +1,6 @@
 version: "3.3"
 services:
-  fastapi:
+  selenium:
     image: localhost:5000/ca22_selenium
     environment:
       - PUSHED_APP_KEY
