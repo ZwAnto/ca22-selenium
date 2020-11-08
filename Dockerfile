@@ -37,4 +37,4 @@ RUN crontab cron
 ADD entrypoint entrypoint
 RUN chmod +x entrypoint
 
-ENTRYPOINT ["/entrypoint"]
+ENTRYPOINT ["/opt/entrypoint"]
