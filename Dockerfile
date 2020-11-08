@@ -26,9 +26,7 @@ RUN pip install -r "requirements.txt"
 
 WORKDIR /opt/
 
-ADD scrapper.py scrapper.py
-ADD main.py main.py
-ADD mail.py mail.py
+ADD scraper scraper
 
 ### CRON JOB ##############################################################
 

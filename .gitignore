@@ -1,2 +1,6 @@
 *.yml
 *.exe
+*.sql
+*.log
+.vscode
+__pycache__

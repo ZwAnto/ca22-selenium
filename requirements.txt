@@ -1,4 +1,4 @@
-pymysql
 selenium
 pyaml
 plac
+requests
