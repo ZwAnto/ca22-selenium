@@ -14,8 +14,6 @@ unzip \
 cron \
 chromium \
 chromium-driver \
-gcc \
-g++
 
 ### PYTHON REQUIREMENTS ###################################################
 

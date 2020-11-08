@@ -17,7 +17,7 @@ def main():
     login = os.getenv('CA_LOGIN')
     password = os.getenv('CA_PASSWORD')
     account = os.getenv('CA_ACCOUNT')
-    chromedriver = os.getenv('CHROMEDRIVER_PATH')
+    chromedriver = os.getenv('CHROMEDRIVER_PATH', 'chromedriver')
 
     try:
 
