@@ -13,7 +13,7 @@ wget \
 unzip \
 cron \
 chromium \
-chromium-driver \
+chromium-driver
 
 ### PYTHON REQUIREMENTS ###################################################
 
