@@ -6,4 +6,4 @@ touch /etc/crontab /etc/cron.*/*
 service cron start
 
 # Hand off to the CMD
-/bin/bash
+sleep infinity
