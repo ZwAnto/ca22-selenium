@@ -50,6 +50,4 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
           envs: PUSHED_APP_KEY,PUSHED_APP_SECRET,CA_LOGIN,CA_PASSWORD,CA_ACCOUNT
-          script: |
-            echo $PUSHED_APP_KEY > ~/test
-            sh ~/github/ca22-selenium/build.sh
+          script: sh ~/github/ca22-selenium/build.sh

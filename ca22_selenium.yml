@@ -3,11 +3,11 @@ services:
   selenium:
     image: localhost:5000/ca22_selenium
     environment:
-      - PUSHED_APP_KEY
-      - PUSHED_APP_SECRET
-      - CA_LOGIN
-      - CA_PASSWORD
-      - CA_ACCOUNT
+      - PUSHED_APP_KEY 
+      - PUSHED_APP_SECRET 
+      - CA_LOGIN 
+      - CA_PASSWORD 
+      - CA_ACCOUNT 
     deploy:
       mode: replicated
       replicas: 1
