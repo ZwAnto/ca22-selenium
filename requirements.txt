@@ -1,4 +1,4 @@
 selenium
-pyaml
 plac
 requests
+numpy
