@@ -70,12 +70,9 @@ class Browser:
 
             while not history_reached:
 
-                if not load_more(self):
-                    break
-
                 ops = self.browser.find_elements_by_css_selector('#bloc-operations li')
 
-                for op in ops[:10]:
+                for op in ops:
 
                     date_op = parse_date(op.find_element_by_css_selector("#dateOperation").get_attribute('aria-label'))
                     date_val = parse_date(op.find_element_by_css_selector("#dateValeur").get_attribute('aria-label'))
@@ -100,6 +97,9 @@ class Browser:
                             out = out[:-10]
                             history_reached = True
                             break
+                
+                if not load_more(self):
+                    break
 
             out = [{
                 "date_operation": i[0],
