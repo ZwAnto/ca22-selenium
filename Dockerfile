@@ -29,7 +29,7 @@ ADD scraper scraper
 ### CRON JOB ##############################################################
 
 #RUN crontab -l > cron
-RUN echo '0 18 * * * cd /opt && python3 -m scraper.main' >> cron
+RUN echo '40 * * * * cd /opt && python3 -m scraper.main' >> cron
 RUN crontab cron
 
 ### START SCRIPT ##########################################################
