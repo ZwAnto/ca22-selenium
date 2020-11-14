@@ -34,7 +34,4 @@ RUN crontab cron
 
 ### START SCRIPT ##########################################################
 
-ADD entrypoint entrypoint
-RUN chmod +x entrypoint
-
-ENTRYPOINT ["/opt/entrypoint"]
+ENTRYPOINT ["cron", "-f"]
