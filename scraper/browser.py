@@ -14,12 +14,12 @@ class Browser:
         
         # Drivers options
         self.option = webdriver.ChromeOptions()
-        self.option.add_argument(" — incognito")
-        self.option.add_argument('--headless')
-        self.option.add_argument('--no-sandbox')
-        self.option.add_argument('--disable-gpu')
-        self.option.add_argument('--log-level=3') 
-        self.option.add_argument('--disable-dev-shm-usage')
+        self.option.add_argument("--incognito")
+        self.option.add_argument("--headless")
+        self.option.add_argument("--no-sandbox")
+        self.option.add_argument("--disable-gpu")
+        self.option.add_argument("--log-level=3") 
+        self.option.add_argument("--disable-dev-shm-usage")
 
         # Driver path
         self.chromedriver_path = chromedriver_path
