@@ -22,9 +22,9 @@ RUN pip install -r "requirements.txt"
 
 ### CRON JOB ##############################################################
 
-RUN crontab -l > cron
-RUN echo '*/10 * * * * cd /opt && python3 -m scraper.main > /var/log/cron.log 2>&1' >> cron
-RUN crontab cron
+RUN echo '*/10 * * * * cd /opt && python3 -m scraper.main > /var/log/cron.log 2>&1' >> /etc/cron.d/hello-cron
+RUN chmod a+x /etc/cron.d/hello-cron
+RUN crontab /etc/cron.d/hello-cron
 
 ### PYTHON SCRIPT #########################################################
 
