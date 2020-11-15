@@ -23,7 +23,7 @@ RUN pip install -r "requirements.txt"
 ### CRON JOB ##############################################################
 
 RUN crontab -l > cron
-RUN echo '40 * * * * cd /opt && python3 -m scraper.main > /var/log/cron.log 2>&1' >> cron
+RUN echo '*/10 * * * * cd /opt && python3 -m scraper.main > /var/log/cron.log 2>&1' >> cron
 RUN crontab cron
 
 RUN touch /var/log/cron.log
