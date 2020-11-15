@@ -37,4 +37,4 @@ RUN chmod a+x entrypoint
 
 ### START SCRIPT ##########################################################
 
-ENTRYPOINT ["entrypoint"]
+ENTRYPOINT ["/opt/entrypoint"]
