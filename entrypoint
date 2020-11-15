@@ -1,5 +1,11 @@
 #!/bin/bash
 
+printenv > /etc/environment
+
+echo '*/10 * * * * cd /opt && python -m scraper.main > /var/log/cron.log 2>&1' >> /etc/cron.d/hello-cron
+chmod a+x /etc/cron.d/hello-cron
+crontab /etc/cron.d/hello-cron
+
 #fix link-count, as cron is being a pain, and docker is making hardlink count >0 (very high)
 touch /etc/crontab /etc/cron.*/*
 
