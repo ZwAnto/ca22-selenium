@@ -26,14 +26,15 @@ RUN crontab -l > cron
 RUN echo '*/10 * * * * cd /opt && python3 -m scraper.main > /var/log/cron.log 2>&1' >> cron
 RUN crontab cron
 
-RUN touch /var/log/cron.log
-
 ### PYTHON SCRIPT #########################################################
 
 WORKDIR /opt/
 
 ADD scraper scraper
 
+ADD entrypoint entrypoint
+RUN chmod a+x entrypoint
+
 ### START SCRIPT ##########################################################
 
-ENTRYPOINT ["cron", "-f"]
+ENTRYPOINT ["entrypoint"]
