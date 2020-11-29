@@ -11,3 +11,6 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+      resources:
+        reservations:
+          memory: 900m
