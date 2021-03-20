@@ -68,11 +68,14 @@ class Browser:
             out = []
             history_reached = False
 
+            start = 0
             while not history_reached:
 
                 ops = self.browser.find_elements_by_css_selector('#bloc-operations li')
 
-                for op in ops:
+                for ith in range(start, len(ops)):    
+
+                    op = ops[ith]
 
                     date_op = parse_date(op.find_element_by_css_selector("#dateOperation").get_attribute('aria-label'))
                     date_val = parse_date(op.find_element_by_css_selector("#dateValeur").get_attribute('aria-label'))
@@ -97,7 +100,9 @@ class Browser:
                             out = out[:-10]
                             history_reached = True
                             break
-                
+                        
+                start = ith+1
+
                 if not load_more(self):
                     break
 
@@ -115,5 +120,3 @@ class Browser:
         except Exception as e: 
             print(str(e))
             exit()
-
-
