@@ -73,6 +73,7 @@ class Browser:
 
                 ops = self.browser.find_elements_by_css_selector('#bloc-operations li')
 
+                ith = start
                 for ith in range(start, len(ops)):    
 
                     op = ops[ith]
