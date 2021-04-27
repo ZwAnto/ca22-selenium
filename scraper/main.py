@@ -29,6 +29,7 @@ def main():
         chrome.quit()
 
         if len(operations) == 0:
+            logging.info('Database up-to-date.')
             push_notification('Database up-to-date.')
         else:
             operations = list(reversed(operations))
@@ -40,6 +41,7 @@ def main():
                 if r.status_code != 200:
                     raise requests.exceptions.HTTPError
             
+            logging.info('%i new operations added.' % (len(operations)))
             push_notification('%i new operations added.' % (len(operations)))
 
     except WebDriverException as e:
