@@ -26,9 +26,4 @@ WORKDIR /opt/
 
 ADD scraper scraper
 
-ADD entrypoint entrypoint
-RUN chmod a+x entrypoint
-
-### START SCRIPT ##########################################################
-
-ENTRYPOINT ["/opt/entrypoint"]
+ENTRYPOINT /usr/local/bin/python3

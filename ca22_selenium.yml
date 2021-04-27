@@ -2,6 +2,7 @@ version: "3.3"
 services:
   selenium:
     image: localhost:5000/ca22_selenium
+    command: -m scraper.main
     environment:
       - PUSHED_APP_KEY 
       - PUSHED_APP_SECRET 
@@ -10,7 +11,13 @@ services:
       - CA_ACCOUNT 
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 0
+      labels:
+        - "swarm.cronjob.enable=true"
+        - "swarm.cronjob.schedule=0 6,18 * * *"
+        - "swarm.cronjob.skip-running=false"
+      restart_policy:
+        condition: none
       resources:
         reservations:
           memory: 900m
