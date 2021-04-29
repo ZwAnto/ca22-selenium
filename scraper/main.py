@@ -10,7 +10,7 @@ from selenium.common.exceptions import WebDriverException
 from scraper import push_notification
 from scraper.browser import Browser
 
-logging.basicConfig(format='[%(asctime)s][%(levelname)s] %(message)s',level=logging.INFO)
+logging.basicConfig(format='[%(asctime)s][%(levelname)s] %(message)s',level=logging.DEBUG)
 
 def main():
 
