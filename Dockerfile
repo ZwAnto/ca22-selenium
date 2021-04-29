@@ -9,8 +9,6 @@ RUN apt-get clean && apt-get update && apt-get install -y locales
 RUN locale-gen fr_FR.UTF-8
 
 RUN apt-get update && apt-get install -yq \
-wget \
-unzip \
 chromium \
 chromium-driver
 
