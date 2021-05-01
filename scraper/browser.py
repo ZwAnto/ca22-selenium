@@ -81,9 +81,9 @@ class Browser:
                     date_op = parse_date(op.find_element_by_css_selector("#dateOperation").get_attribute('aria-label'))
                     date_val = parse_date(op.find_element_by_css_selector("#dateValeur").get_attribute('aria-label'))
                     
-                    op_type = op.find_element_by_css_selector("div .Operation-type").text
-                    op_name = op.find_element_by_css_selector("div .Operation-name").text
-                    debit, credit = parse_montant(op.find_element_by_css_selector("#montant").text)
+                    op_type = op.find_element_by_css_selector("div.Operation-type").get_attribute('textContent').strip()
+                    op_name = op.find_element_by_css_selector("div.Operation-name").get_attribute('textContent').strip()
+                    debit, credit = parse_montant(op.find_element_by_css_selector("#montant").get_attribute('aria-label'))
 
                     for i in op.find_elements_by_css_selector('.Operation-list .Operation-main div'):
                         op_name = op_name + ' ' + i.get_attribute("textContent")

@@ -42,12 +42,12 @@ def parse_date(date):
     return date
 
 def parse_montant(montant):
-    if montant[0] == '-':
-        debit = re.sub(',','.',re.sub('[-+] ?([0-9, ]*).*','\\1',montant)).strip()
+    if montant[0] == 'm':
+        debit = re.sub(',','.',re.sub('moins ?([0-9,. ]*).*','\\1',montant)).strip()
         debit = str(float(re.sub(' ','',debit)))
         credit = str(float(0))
     else:
-        credit = re.sub(',','.',re.sub('[-+] ?([0-9, ]*).*','\\1',montant)).strip()
+        credit = re.sub(',','.',re.sub('([0-9,. ]*).*','\\1',montant)).strip()
         credit = str(float(re.sub(' ','',credit)))
         debit = str(float(0))
 
