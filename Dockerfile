@@ -23,4 +23,4 @@ WORKDIR /opt/
 
 ADD scraper scraper
 
-ENTRYPOINT /usr/local/bin/python3
+ENTRYPOINT ["/usr/local/bin/python3"]
