@@ -7,6 +7,10 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from scraper import (get_last10_md5, load_more, md5_hash, parse_date,
                      parse_montant)
 
+from scraper.logging import logging
+
+logger = logging.getLogger(__name__)
+
 
 class Browser:
     
@@ -59,65 +63,63 @@ class Browser:
 
 
     def retrieve(self,account):
-        try:
-            
-            last_md5 = get_last10_md5()
 
-            self.browser.get('https://www.credit-agricole.fr/ca-cotesdarmor/particulier/operations/synthese/detail-comptes.html?idx={}&famillecode=1#!/'.format(account))
+        last_md5 = get_last10_md5()
 
-            out = []
-            history_reached = False
+        self.browser.get('https://www.credit-agricole.fr/ca-cotesdarmor/particulier/operations/synthese/detail-comptes.html?idx={}&famillecode=1#!/'.format(account))
 
-            start = 0
-            while not history_reached:
+        out = []
+        history_reached = False
 
-                ops = self.browser.find_elements_by_css_selector('#bloc-operations li')
+        start = 0
+        while not history_reached:
 
-                ith = start
-                for ith in range(start, len(ops)):    
+            ops = self.browser.find_elements_by_css_selector('#bloc-operations li')
 
-                    op = ops[ith]
+            ith = start
+            for ith in range(start, len(ops)):    
+                logger.info(f'Parsing operation {ith+1}.')
 
-                    date_op = parse_date(op.find_element_by_css_selector("#dateOperation").get_attribute('aria-label'))
-                    date_val = parse_date(op.find_element_by_css_selector("#dateValeur").get_attribute('aria-label'))
+                op = ops[ith]
+
+                date_op = parse_date(op.find_element_by_css_selector("#dateOperation").get_attribute('aria-label'))
+                date_val = parse_date(op.find_element_by_css_selector("#dateValeur").get_attribute('aria-label'))
+                
+                op_type = op.find_element_by_css_selector("div.Operation-type").get_attribute('textContent').strip()
+                op_name = op.find_element_by_css_selector("div.Operation-name").get_attribute('textContent').strip()
+                debit, credit = parse_montant(op.find_element_by_css_selector("#montant").get_attribute('aria-label'))
+
+                for i in op.find_elements_by_css_selector('.Operation-list .Operation-main div'):
+                    op_name = op_name + ' ' + i.get_attribute("textContent")
+
+                op_name = re.sub('\n',' ',op_name)
+                op_name = re.sub('\t',' ', op_name)
+                op_name = re.sub('[ ]{1,}',' ', op_name)
+                op_name = op_name.strip()
+
+                logger.info([date_op, date_val, op_type, op_name, debit, credit])
+
+                out.append([date_op, date_val, op_type, op_name, debit, credit])
+
+                if last_md5 is not None:
+                    md5 = md5_hash(out[-10:]) 
+                    if md5 == last_md5:
+                        out = out[:-10]
+                        history_reached = True
+                        break
                     
-                    op_type = op.find_element_by_css_selector("div.Operation-type").get_attribute('textContent').strip()
-                    op_name = op.find_element_by_css_selector("div.Operation-name").get_attribute('textContent').strip()
-                    debit, credit = parse_montant(op.find_element_by_css_selector("#montant").get_attribute('aria-label'))
+            start = ith+1
 
-                    for i in op.find_elements_by_css_selector('.Operation-list .Operation-main div'):
-                        op_name = op_name + ' ' + i.get_attribute("textContent")
+            if not load_more(self):
+                break
 
-                    op_name = re.sub('\n',' ',op_name)
-                    op_name = re.sub('\t',' ', op_name)
-                    op_name = re.sub('[ ]{1,}',' ', op_name)
-                    op_name = op_name.strip()
+        out = [{
+            "date_operation": i[0],
+            "date_valeur": i[1],
+            "type": i[2],
+            "description": i[3],
+            "debit": float(i[4]),
+            "credit": float(i[5])
+            } for i in out]
 
-                    out.append([date_op, date_val, op_type, op_name, debit, credit])
-
-                    if last_md5 is not None:
-                        md5 = md5_hash(out[-10:]) 
-                        if md5 == last_md5:
-                            out = out[:-10]
-                            history_reached = True
-                            break
-                        
-                start = ith+1
-
-                if not load_more(self):
-                    break
-
-            out = [{
-                "date_operation": i[0],
-                "date_valeur": i[1],
-                "type": i[2],
-                "description": i[3],
-                "debit": float(i[4]),
-                "credit": float(i[5])
-                } for i in out]
-
-            return(out)
-
-        except Exception as e: 
-            print(str(e))
-            exit()
+        return(out)

@@ -1,6 +1,7 @@
 
 import json
-import logging
+from scraper.logging import logging
+
 import os
 
 import plac
@@ -9,8 +10,8 @@ from selenium.common.exceptions import WebDriverException
 
 from scraper import push_notification
 from scraper.browser import Browser
-
-logging.basicConfig(format='[%(asctime)s][%(levelname)s] %(message)s',level=logging.DEBUG)
+  
+logger = logging.getLogger(__name__)
 
 def main():
 
@@ -29,8 +30,12 @@ def main():
         chrome.quit()
 
         if len(operations) == 0:
-            logging.info('Database up-to-date.')
+            logger.info('Database up-to-date.')
             push_notification('Database up-to-date.')
+        elif len(operations) > 50:
+            logger.error('Too many operations to add. Please check for errors.')
+            push_notification('Too many operations to add. Please check for errors.')
+            exit(1)
         else:
             operations = list(reversed(operations))
 
@@ -41,19 +46,20 @@ def main():
                 if r.status_code != 200:
                     raise requests.exceptions.HTTPError
             
-            logging.info('%i new operations added.' % (len(operations)))
+            logger.info('%i new operations added.' % (len(operations)))
             push_notification('%i new operations added.' % (len(operations)))
 
     except WebDriverException as e:
-        logging.error('Error with slenium driver.')
+        logger.error('Error with slenium driver.')
         push_notification('Error with slenium driver.')
 
     except requests.exceptions.HTTPError as e:
-        logging.error('Error during communication with fastapi.')
+        logger.error('Error during communication with fastapi.')
         push_notification('Error during communication with fastapi.')
 
     except Exception as e:
-        logging.error('Unknown Exception occured.')
+        print(e)
+        logger.error('Unknown Exception occured.')
         push_notification('Unknown Exception occured.')
         raise e
 
