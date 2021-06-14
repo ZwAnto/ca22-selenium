@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   selenium:
-    image: localhost:5000/ca22_selenium
+    image: registry.ahamon.ovh/ca22_selenium
     command: -m scraper.main
     environment:
       - PUSHED_APP_KEY 
