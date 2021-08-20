@@ -32,10 +32,10 @@ def main():
         if len(operations) == 0:
             logger.info('Database up-to-date.')
             push_notification('Database up-to-date.')
-        elif len(operations) > 50:
-            logger.error('Too many operations to add. Please check for errors.')
-            push_notification('Too many operations to add. Please check for errors.')
-            exit(1)
+        # elif len(operations) > 50:
+        #     logger.error('Too many operations to add. Please check for errors.')
+        #     push_notification('Too many operations to add. Please check for errors.')
+        #     exit(1)
         else:
             operations = list(reversed(operations))
 

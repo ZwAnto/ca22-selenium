@@ -11,7 +11,7 @@ services:
       - CA_ACCOUNT 
     deploy:
       mode: replicated
-      replicas: 0
+      replicas: 1
       labels:
         - "swarm.cronjob.enable=true"
         - "swarm.cronjob.schedule=0 6,18 * * *"
