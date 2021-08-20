@@ -14,7 +14,7 @@ def md5_hash(arr):
     return(hashlib.md5(pickle.dumps([[str(i).encode('utf-8') for i in j] for j in arr])).hexdigest())
 
 def get_last10_md5():
-    cols = ["date_operation","date_valeur","type","description","debit","credit"]
+    cols = ["date_operation","date_valeur","type","libelle", "description","debit","credit"]
 
     req = requests.get("http://192.168.1.100:8001/operation/scraped/last10")
     
@@ -54,7 +54,9 @@ def parse_montant(montant):
     return debit, credit
 
 def load_more(driver):
-    if driver.browser.find_element_by_css_selector('.js-Operations-more').is_displayed():
+    el = driver.browser.find_element_by_css_selector('.js-Operations-more')
+
+    if el.get_attribute("class").find('hidden') < 0: 
         driver.browser.execute_script("$('.js-Operations-more').click()")
         time.sleep(.5)
 

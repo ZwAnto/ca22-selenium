@@ -78,6 +78,7 @@ class Browser:
 
             ith = start
             for ith in range(start, len(ops)):    
+
                 logger.info(f'Parsing operation {ith+1}.')
 
                 op = ops[ith]
@@ -89,17 +90,17 @@ class Browser:
                 op_name = op.find_element_by_css_selector("div.Operation-name").get_attribute('textContent').strip()
                 debit, credit = parse_montant(op.find_element_by_css_selector("#montant").get_attribute('aria-label'))
 
+                misc = []
                 for i in op.find_elements_by_css_selector('.Operation-list .Operation-main div'):
-                    op_name = op_name + ' ' + i.get_attribute("textContent")
+                    text = i.get_attribute("textContent").strip()
+                    if text != '':
+                        misc.append(text)
 
-                op_name = re.sub('\n',' ',op_name)
-                op_name = re.sub('\t',' ', op_name)
-                op_name = re.sub('[ ]{1,}',' ', op_name)
-                op_name = op_name.strip()
+                misc = '\n'.join(misc)
 
-                logger.info([date_op, date_val, op_type, op_name, debit, credit])
+                logger.info([date_op, date_val, op_type, op_name, misc, debit, credit])
 
-                out.append([date_op, date_val, op_type, op_name, debit, credit])
+                out.append([date_op, date_val, op_type, op_name, misc, debit, credit])
 
                 if last_md5 is not None:
                     md5 = md5_hash(out[-10:]) 
@@ -117,9 +118,10 @@ class Browser:
             "date_operation": i[0],
             "date_valeur": i[1],
             "type": i[2],
-            "description": i[3],
-            "debit": float(i[4]),
-            "credit": float(i[5])
+            "libelle": i[3],
+            "description": i[4],
+            "debit": float(i[5]),
+            "credit": float(i[6])
             } for i in out]
 
         return(out)
