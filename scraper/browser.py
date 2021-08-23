@@ -90,6 +90,8 @@ class Browser:
                 op_name = op.find_element_by_css_selector("div.Operation-name").get_attribute('textContent').strip()
                 debit, credit = parse_montant(op.find_element_by_css_selector("#montant").get_attribute('aria-label'))
 
+                op_name = re.sub('[ ]{1,}', ' ', op_name)
+
                 misc = []
                 for i in op.find_elements_by_css_selector('.Operation-list .Operation-main div'):
                     text = i.get_attribute("textContent").strip()
@@ -97,6 +99,7 @@ class Browser:
                         misc.append(text)
 
                 misc = '\n'.join(misc)
+                misc = re.sub('[ ]{1,}', ' ', misc)
 
                 logger.info([date_op, date_val, op_type, op_name, misc, debit, credit])
 
